@@ -113,10 +113,6 @@ class CharacterViewModel(
     suspend fun getCharacterDetail(id: Int): Character {
         return repository.getCharacterById(id)
     }
-    fun isFavorite(id: Int): Boolean {
-        return favorites.value.any { it.id == id }
-    }
-
     fun toggleFavorite(character: Character) {
         viewModelScope.launch {
             val existing =

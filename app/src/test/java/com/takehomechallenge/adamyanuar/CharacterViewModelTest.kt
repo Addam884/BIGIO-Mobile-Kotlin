@@ -1,4 +1,4 @@
-package com.takehomechallenge.adamyanuar.viewmodel
+package com.takehomechallenge.adamyanuar
 
 import com.takehomechallenge.adamyanuar.data.model.Character
 import com.takehomechallenge.adamyanuar.data.model.CharacterResponse
@@ -9,7 +9,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
-import com.takehomechallenge.adamyanuar.MainDispatcherRule
+import com.takehomechallenge.adamyanuar.viewmodel.CharacterViewModel
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
