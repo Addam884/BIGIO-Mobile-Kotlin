@@ -137,9 +137,6 @@ ui
  │
  └── theme
       ├── Color.kt
-      ├── Theme.kt
-      └── Type.kt
-
 
 viewmodel
  ├── CharacterViewModel.kt
