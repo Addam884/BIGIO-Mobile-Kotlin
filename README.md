@@ -217,4 +217,4 @@ Entry point aplikasi Android.
 ---
 
 # APK Link
-https://drive.google.com/file/d/191KZ6v3CVSyqYGgz_FncZRSg7tYvV4ip/view?usp=sharing
+https://drive.google.com/file/d/17dWCEpD79KunC4Bv0F46ufQXX82Llor5/view?usp=sharing
