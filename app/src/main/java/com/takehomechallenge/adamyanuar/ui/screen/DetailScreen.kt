@@ -208,6 +208,12 @@ fun DetailScreen(
                 InfoCard(label = "Origin", value = character.origin.name)
                 Spacer(Modifier.height(12.dp))
                 InfoCard(label = "Location", value = character.location.name)
+                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(12.dp))
+                InfoCard(
+                    label = "Total Episodes",
+                    value = character.episode.size.toString()
+                )
                 Spacer(Modifier.height(28.dp))
                 Button(
                     onClick = {
