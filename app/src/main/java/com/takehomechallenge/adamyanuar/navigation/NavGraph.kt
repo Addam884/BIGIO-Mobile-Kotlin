@@ -27,11 +27,6 @@ fun NavGraph(
     navController: NavHostController,
     vm: CharacterViewModel
 ) {
-
-    LaunchedEffect(Unit) {
-        vm.loadCharacters()
-    }
-
     NavHost(
         navController = navController,
         startDestination = "home"
@@ -40,19 +35,45 @@ fun NavGraph(
         composable("home") {
 
             val state by vm.characters.collectAsState()
+
+            LaunchedEffect(state) {
+                if (state is UiState.Empty) {
+                    vm.loadCharacters()
+                }
+            }
+
             val favoriteEntities by vm.favorites.collectAsState(initial = emptyList())
             val favorites = favoriteEntities.map { it.id }
-
+            val isLoadingMore by vm.isPaginationLoading.collectAsState()
+            val isRefreshing by vm.isRefreshing.collectAsState()
             when (state) {
                 is UiState.Loading -> LoadingState()
-                is UiState.Success -> HomeScreen(
-                    characters = (state as UiState.Success).data,
-                    favorites = favorites,
-                    onClick = { navController.navigate("detail/${it.id}") },
-                    onFavorite = { vm.toggleFavorite(it) }
-                )
-                is UiState.Empty -> MessageState("No characters found")
-                is UiState.Error -> MessageState((state as UiState.Error).message)
+                is UiState.Success -> {
+                    val characters =
+                        (state as UiState.Success<List<Character>>).data
+                    HomeScreen(
+                        characters = characters,
+                        favorites = favorites,
+                        isLoadingMore = isLoadingMore,
+                        isRefreshing = isRefreshing,
+                        onClick = {
+                            navController.navigate("detail/${it.id}")
+                        },
+                        onFavorite = {
+                            vm.toggleFavorite(it)
+                        },
+                        onLoadMore = {
+                            vm.loadCharacters()
+                        },
+                        onRefresh = {
+                            vm.refreshCharacters()
+                        }
+                    )
+                }
+                is UiState.Empty ->
+                    MessageState("No characters found")
+                is UiState.Error ->
+                    MessageState((state as UiState.Error).message)
             }
         }
 

@@ -9,7 +9,9 @@ import retrofit2.http.Path
 interface ApiService {
 
     @GET("character")
-    suspend fun getCharacters(): CharacterResponse
+    suspend fun getCharacters(
+        @Query("page") page: Int
+    ): CharacterResponse
 
     @GET("character")
     suspend fun searchCharacter(

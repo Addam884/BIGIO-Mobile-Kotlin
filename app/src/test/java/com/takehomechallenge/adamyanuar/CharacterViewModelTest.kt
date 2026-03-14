@@ -1,9 +1,11 @@
 package com.takehomechallenge.adamyanuar.viewmodel
 
 import com.takehomechallenge.adamyanuar.data.model.Character
+import com.takehomechallenge.adamyanuar.data.model.CharacterResponse
 import com.takehomechallenge.adamyanuar.repository.CharacterRepository
 import com.takehomechallenge.adamyanuar.ui.state.UiState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
@@ -42,9 +44,15 @@ class CharacterViewModelTest {
                 location = mock()
             )
         )
-        `when`(repository.getCharacters())
-            .thenReturn(characters)
+        `when`(repository.getCharacters(1))
+            .thenReturn(
+                CharacterResponse(
+                    info = mock(),
+                    results = characters
+                )
+            )
         viewModel.loadCharacters()
+        advanceUntilIdle()
         val state = viewModel.characters.value
         assertTrue(state is UiState.Success)
     }

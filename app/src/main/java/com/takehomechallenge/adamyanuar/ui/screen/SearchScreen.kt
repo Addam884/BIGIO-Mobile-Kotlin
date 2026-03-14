@@ -199,12 +199,6 @@ fun SearchCharacterCard(
             )
             Spacer(Modifier.height(4.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(6.dp)
-                        .background(Accent, CircleShape)
-                )
-                Spacer(Modifier.width(6.dp))
                 Text(
                     text = character.species,
                     color = TextMuted,

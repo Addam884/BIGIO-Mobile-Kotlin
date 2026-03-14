@@ -6,38 +6,19 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -46,42 +27,97 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.takehomechallenge.adamyanuar.data.model.Character
-import com.takehomechallenge.adamyanuar.ui.theme.Accent
-import com.takehomechallenge.adamyanuar.ui.theme.BgDark
-import com.takehomechallenge.adamyanuar.ui.theme.Surface1
-import com.takehomechallenge.adamyanuar.ui.theme.Surface2
-import com.takehomechallenge.adamyanuar.ui.theme.TextMuted
-import com.takehomechallenge.adamyanuar.ui.theme.TextPrimary
+import com.takehomechallenge.adamyanuar.ui.theme.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     characters: List<Character>,
     favorites: List<Int>,
+    isLoadingMore: Boolean,
+    isRefreshing: Boolean,
     onClick: (Character) -> Unit,
-    onFavorite: (Character) -> Unit
+    onFavorite: (Character) -> Unit,
+    onLoadMore: () -> Unit,
+    onRefresh: () -> Unit
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(BgDark)
+
+    val listState = rememberLazyListState()
+    val refreshState = rememberPullToRefreshState()
+    val shouldLoadMore by remember {
+        derivedStateOf {
+            val lastVisibleItem =
+                listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            lastVisibleItem >= characters.size - 3 &&
+                    characters.isNotEmpty() &&
+                    !isLoadingMore
+        }
+    }
+
+    LaunchedEffect(shouldLoadMore) {
+        if (shouldLoadMore) {
+            onLoadMore()
+        }
+    }
+
+    PullToRefreshBox(
+        state = refreshState,
+        isRefreshing = isRefreshing,
+        onRefresh = onRefresh,
+        indicator = {
+            PullToRefreshDefaults.Indicator(
+                state = refreshState,
+                isRefreshing = isRefreshing,
+                modifier = Modifier.align(Alignment.TopCenter),
+                color = Accent,
+                containerColor = Surface1
+            )
+        }
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(BgDark)
+        ) {
+
             HomeTopBar()
-            if (characters.isEmpty()) {
+            if (characters.isEmpty() && !isRefreshing) {
                 EmptyState()
             } else {
                 LazyColumn(
+                    state = listState,
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    userScrollEnabled = !isLoadingMore
                 ) {
-                    items(characters) { character ->
+                    items(
+                        items = characters,
+                        key = { it.id }
+                    ) { character ->
                         CharacterCard(
                             character = character,
                             isFavorite = favorites.contains(character.id),
                             onClick = onClick,
                             onFavorite = onFavorite
                         )
+                    }
+                    if (isLoadingMore) {
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    color = Accent,
+                                    modifier = Modifier.size(24.dp),
+                                    strokeWidth = 2.dp
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -161,14 +197,12 @@ fun CharacterCard(
                 overflow = TextOverflow.Ellipsis
             )
             Spacer(Modifier.height(4.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = character.species,
-                    color = TextMuted,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            }
+            Text(
+                text = character.species,
+                color = TextMuted,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Medium
+            )
             Spacer(Modifier.height(4.dp))
             Text(
                 text = character.gender,
@@ -178,9 +212,16 @@ fun CharacterCard(
         }
         IconButton(onClick = { onFavorite(character) }) {
             Icon(
-                imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                imageVector = if (isFavorite)
+                    Icons.Filled.Favorite
+                else
+                    Icons.Filled.FavoriteBorder,
                 contentDescription = "Favorite",
-                tint = if (isFavorite) Color(0xFFFF4D6D) else TextMuted,
+                tint =
+                    if (isFavorite)
+                        Color(0xFFFF4D6D)
+                    else
+                        TextMuted,
                 modifier = Modifier.graphicsLayer(
                     scaleX = favoriteScale,
                     scaleY = favoriteScale
