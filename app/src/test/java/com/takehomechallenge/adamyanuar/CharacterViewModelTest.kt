@@ -41,7 +41,8 @@ class CharacterViewModelTest {
                 gender = "Male",
                 image = "",
                 origin = mock(),
-                location = mock()
+                location = mock(),
+                episode = emptyList()
             )
         )
         `when`(repository.getCharacters(1))
@@ -67,7 +68,8 @@ class CharacterViewModelTest {
                 gender = "Male",
                 image = "",
                 origin = mock(),
-                location = mock()
+                location = mock(),
+                episode = emptyList()
             )
         )
         `when`(repository.searchCharacter("Rick"))
