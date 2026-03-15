@@ -123,9 +123,6 @@ repository
 
 
 ui
- ├── components
- │    └── CharacterItem.kt
- │
  ├── screen
  │    ├── DetailScreen.kt
  │    ├── FavoriteScreen.kt
