@@ -183,9 +183,6 @@ Layer yang menghubungkan **API / database dengan ViewModel**.
 ### ui
 Berisi semua tampilan aplikasi.
 
-**components**
-- Komponen UI reusable seperti item list karakter.
-
 **screen**
 - `HomeScreen` → menampilkan daftar karakter
 - `DetailScreen` → detail karakter
