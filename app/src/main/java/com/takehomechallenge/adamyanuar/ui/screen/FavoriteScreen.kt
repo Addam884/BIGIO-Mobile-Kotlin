@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -188,6 +189,12 @@ fun FavoriteCard(
                     scaleY = deleteScale
                 )
             )
+        }
+        LaunchedEffect(pressed) {
+            if (pressed) {
+                kotlinx.coroutines.delay(150)
+                onRemove(character)
+            }
         }
     }
 }
